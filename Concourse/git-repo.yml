@@ -1,0 +1,46 @@
+# Resource = something your pipeline connects to / watches / gets or puts.
+# Task = actual work that your pipeline executes.
+resources:
+  - name: my-repo
+    type: git
+    source:
+      uri: https://github.com/Rishikesh75/system-design-playbook.git
+      username: Rishikesh75
+      password: YOUR_GITHUB_TOKEN
+
+jobs:
+  - name: test-repository
+    plan:
+      - get: my-repo
+
+      - task: show-files
+        config:
+          platform: linux
+
+          image_resource:
+            type: registry-image
+            source:
+              repository: alpine
+              tag: latest
+
+          inputs:
+            - name: my-repo
+
+          run:
+            path: sh
+            args:
+              - -c
+              - |
+                apk add --no-cache git
+
+                echo "Repository contents:"
+                ls -la my-repo
+
+                echo ""
+                echo "Current directory:"
+                pwd
+
+                echo ""
+                echo "Git information:"
+                cd my-repo
+                git log -1

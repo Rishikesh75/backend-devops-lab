@@ -1,0 +1,49 @@
+jobs:
+  - name: create-file-job
+    plan:
+
+      # Task 1: Create hello.txt
+      - task: create-file-task
+        config:
+          platform: linux
+
+          image_resource:
+            type: registry-image
+            source:
+              repository: busybox
+              tag: latest
+
+          outputs:
+            - name: hello-output
+
+          run:
+            path: sh
+            args:
+              - -c
+              - |
+                echo "Hello, Concourse!" > hello-output/hello.txt
+
+                echo "Created file:"
+                cat hello-output/hello.txt
+
+      # Task 2: Read hello.txt from Task 1
+      - task: show-file-task
+        config:
+          platform: linux
+
+          image_resource:
+            type: registry-image
+            source:
+              repository: busybox
+              tag: latest
+
+          inputs:
+            - name: hello-output
+
+          run:
+            path: sh
+            args:
+              - -c
+              - |
+                echo "Reading file from previous task:"
+                cat hello-output/hello.txt
